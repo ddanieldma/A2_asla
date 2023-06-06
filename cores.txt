@@ -1,0 +1,6 @@
+#FF8204 amarelo
+ 
+#0E7076 azul
+
+#C55BCA roxo
+
