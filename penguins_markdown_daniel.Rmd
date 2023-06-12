@@ -11,10 +11,10 @@ library(tidyverse)
 library(ggrepel)
 library(patchwork)
 library(socviz)
-library(gapminder)
+library(ggthemes)
 
-pg_lter = read.csv("C:/Users/danie/OneDrive/Área de Trabalho/A2_asla/penguins_lter.csv")
-pg_size = read.csv("C:/Users/danie/OneDrive/Área de Trabalho/A2_asla/penguins_size.csv")
+pg_lter = read.csv("C:/Users/B51995/Desktop/A2_AEDV/penguins_lter.csv")
+pg_size = read.csv("C:/Users/B51995/Desktop/A2_AEDV/penguins_size.csv")
 
 paleta_penguins = c("#FF8204", "#C55BCA", "#0E7076")
 paleta_penguins_dois = c("adelie", "chinstrap", "gentoo")
@@ -244,7 +244,17 @@ plot3
 # com texto junto da barra
 plot1_novo <- plot1 + 
   geom_text(aes(label = contagem) , size = 10, hjust = 1, vjust = 0.5) +
-  coord_flip()
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 18),
+        axis.text.x = element_text(size = 18)) +
+  theme_minimal()
+
+plot1_novo <- plot1 + 
+  geom_text(aes(label = contagem) , size = 10, hjust = 1, vjust = 0.5) +
+  coord_flip() +
+  theme_minimal()
+
+ggsave("pinguins_especie.png")
 # sem texto junto da barra
 plot11_novo <- plot1 +
   coord_flip()
@@ -270,7 +280,8 @@ plot21_novo/
 plot3_novo
 
 # distribuição de pinguim por ilha e por espécie
-plot22
+plot22 + theme_minimal()
+ggsave("especie_ilha.png")
 
 # porcetagem de pinguins por ilha em pizza
 # com raio da pizza sendo a quantidade de pinguins na ilha em proporção
@@ -281,3 +292,24 @@ pie(df_island_species[df_island_species$island == "Biscoe",]$porcentagem, df_isl
 pie(df_island_species[df_island_species$island == "Dream",]$porcentagem, df_island_species[df_island_species$island == "Dream",]$species, radius = populacao_ilhas[ilhas %in% "Dream"], col = paleta_penguins)
 pie(df_island_species[df_island_species$island == "Torgersen",]$porcentagem, df_island_species[df_island_species$island == "Torgersen",]$species, radius = populacao_ilhas[ilhas %in% "Torgersen"], col = paleta_penguins)
 ```
+
+```{r}
+plot1_novo <- plot1 + 
+  geom_text(aes(label = contagem) , size = 10, hjust = 1, vjust = 0.5) +
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 18),
+        axis.text.x = element_text(size = 18)) +
+  theme_minimal()
+
+plot1_novo
+ggsave("pinguins_especie.png", device = "png")
+
+plot1_novo <- plot1 + 
+  geom_text(aes(label = contagem) , size = 10, hjust = 1, vjust = 0.5) +
+  coord_flip() +
+  theme_minimal()
+
+plot1_novo
+
+```
+
