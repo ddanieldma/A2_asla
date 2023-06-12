@@ -1,0 +1,76 @@
+---
+title: "pinguim_markdown"
+output: html_document
+date: "2023-06-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(ggrepel)
+library(patchwork)
+library(socviz)
+library(gapminder)
+library(dplyr)
+library(ggthemes)
+
+pg_size <- read.csv('C:/Users/B51072/Downloads/penguins_size.csv')
+
+paleta_penguins = c("#FF8204", "#C55BCA", "#0E7076")
+paleta_penguins_dois = c("adelie", "chinstrap", "gentoo")
+```
+
+```{r}
+sample_n(pg_size, 10)
+```
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+select(pg_size, c("species","body_mass_g"))
+
+p1 <- ggplot(pg_size, aes(x = species, y = body_mass_g, fill = species)) + geom_violin() + scale_fill_manual(values = paleta_penguins) + guides(fill=FALSE) + theme_minimal() + labs(title="Peso do Pinguim por Espécie", x="", y="Peso (em gramas)") + theme(plot.title = element_text(hjust = 0.5, size = 22)) + theme(axis.text.x = element_text(color = paleta_penguins, size = 18)) + theme(axis.text.y = element_text(size = 18), axis.title.y = element_text(size=22))
+p1
+
+ggsave("pinguim_peso.png", device = "png", plot=p1, width=3000, height = 1100, units = c("px"))
+```
+
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+select(pg_size, c("species","flipper_length_mm"))
+summarize(pg_size, "flipper_length_mm")
+
+p2 <- ggplot(pg_size, aes(x = species, y = flipper_length_mm, fill = species)) + geom_violin() + scale_fill_manual(values = paleta_penguins) + guides(fill=FALSE) + theme_minimal() + labs(title="Comprimento da Nadadeira por Espécie", x="", y="Comprimento (em mm)") + theme(plot.title = element_text(hjust = 0.5, size = 22)) + theme(axis.text.x = element_text(color = paleta_penguins, size = 18)) + theme(axis.text.y = element_text(size = 18), axis.title.y = element_text(size=22))
+p2
+
+ggsave("pinguim_nadadeira.png", device = "png", plot=p2, width=3000, height = 1100, units = c("px"))
+
+
+```
+Análise exploratória das ilhas
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+select(pg_size, c("species","culmen_length_mm"))
+
+p3<- ggplot(pg_size, aes(x = species, y = culmen_length_mm, fill = species)) + geom_violin() + scale_fill_manual(values = paleta_penguins) + guides(fill=FALSE) + theme_minimal() + labs(title="Comprimento do Bico por Espécie", x="", y="Comprimento (em mm)") + theme(plot.title = element_text(hjust = 0.5, size = 22)) + theme(axis.text.x = element_text(color = paleta_penguins, size = 18)) + theme(axis.text.y = element_text(size = 18), axis.title.y = element_text(size=22))
+p1
+
+ggsave("pinguim_comprimento.png", device = "png", plot=p3, width=3000, height = 1100, units = c("px"))
+
+select(pg_size, c("species","culmen_depth_mm"))
+
+p4<- ggplot(pg_size, aes(x = species, y = culmen_depth_mm, fill = species)) + geom_violin() + scale_fill_manual(values = paleta_penguins) + guides(fill=FALSE) + theme_minimal() + labs(title="Altura do Bico por Espécie", x="", y="Largura (em mm)") + theme(plot.title = element_text(hjust = 0.5, size = 22)) + theme(axis.text.x = element_text(color = paleta_penguins, size = 18)) + theme(axis.text.y = element_text(size = 18), axis.title.y = element_text(size=22))
+p1
+
+ggsave("pinguim_altura.png", device = "png", plot=p4, width=3000, height = 1100, units = c("px"))
+
+select(pg_size, c("species","sex"))
+
+pg_size %>% 
+  group_by(species, sex) %>% 
+  count() %>%
+  ggplot(aes(x = species, y = n, fill = sex)) +
+  geom_col(position = "dodge") +
+  theme_minimal() + scale_fill_manual(values = c("#008B8B", "#20B2AA")) + theme_minimal() + labs(title="Pinguins de cada Sexo por Espécie", x="", y="Número de Indivíduos", fill="Sexo") + theme(plot.title = element_text(hjust = 0.5, size = 22)) + theme(axis.text.x = element_text(color = paleta_penguins, size = 14))
+  
+```
+
+
