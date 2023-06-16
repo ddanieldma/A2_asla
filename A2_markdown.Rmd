@@ -140,19 +140,19 @@ plot2_novo
 ```
 Gráficos de pizza com a distribuição de espécie por ilha onde o raio da pizza representa a quantidade de pinguins naquela ilha
 
-Ilha Biscoe
+#### Ilha Biscoe
 
 ```{r}
 pie(df_island_species[df_island_species$island == "Biscoe",]$porcentagem, df_island_species[df_island_species$island == "Biscoe",]$species, radius = populacao_ilhas[ilhas %in% "Biscoe"], col = c("#FF8204", "#0E7076"))
 ```
 
-Ilha Dream
+#### Ilha Dream
 
 ```{r}
 pie(df_island_species[df_island_species$island == "Dream",]$porcentagem, df_island_species[df_island_species$island == "Dream",]$species, radius = populacao_ilhas[ilhas %in% "Dream"], col = paleta_penguins)
 ```
 
-Ilha Torgersen
+#### Ilha Torgersen
 
 ```{r}
 pie(df_island_species[df_island_species$island == "Torgersen",]$porcentagem, df_island_species[df_island_species$island == "Torgersen",]$species, radius = populacao_ilhas[ilhas %in% "Torgersen"], col = paleta_penguins)
