@@ -58,11 +58,13 @@ knitr::include_graphics("E:/Users/B51995/Desktop/A2_Asla/imgs/rascunho_pinguins.
 ### Análise Exploratória da base de dados
 
 Pegando alguns exemplos do dataset
+
 ```{r}
 sample_n(pg_size, 10)
 ```
 
 Médias e desvios padrões para as variáveis que são numéricas
+
 ```{r}
 pg_size_copia = pg_size
 
@@ -70,8 +72,10 @@ pg_size_copia %>% summarize_if(is.numeric, list(mean = mean, sd = sd), na.rm = T
 ```
 
 #### Gráficos sobre a distribuição dos pinguins nas ilhas
-```{r gráficos "finais"}
-# preparando gráficos
+
+Preparando os dados dos gráficos
+
+```{r}
 # agrupando dados
 por_ilha <- pg_size %>% group_by(island) %>% 
   summarize(contagem = n()) %>% 
@@ -79,90 +83,33 @@ por_ilha <- pg_size %>% group_by(island) %>%
 por_especie <- pg_size %>% group_by(species) %>% 
   summarize(contagem = n()) %>% 
   mutate(porcentagem = contagem / sum(contagem))
-por_especie_e_ilha <- pg_size %>% group_by(island, species) %>%
-  summarize(contagem = n()) %>%
-  mutate(porcentagem = contagem / sum(contagem))
 
-plot1_base <- 
-  ggplot(por_especie, aes(x = species, y = porcentagem, fill = species)) +
-  geom_col()
-  
-plot1 <- plot1_base +
+plot1 <- 
+  por_especie %>% 
+  ggplot( aes(x = species, y = porcentagem, fill = species)) +
+  geom_col() +
   scale_fill_manual(values = paleta_penguins) +
-  scale_y_continuous(labels = scales::percent) +
-  labs(title = "Porcentagem de pinguins por espécie",
-       x = "Espécie",
-       y = "Porcentagem")
-
-plot11 <- 
-  plot1_base +
-  scale_fill_manual(values = paleta_penguins) +
-  labs(title = "Porcentagem de pinguins por espécie",
-       x = "Espécie",
+  labs(title = "Porcentagem de pinguins por especie",
+       x = "Especie",
        y = "Contagem")
+plot1
 
 # porcetagem  dos pinguins por ilha
-plot2_base <- 
+plot2 <- 
   por_ilha %>% 
   ggplot(aes(x = island, y = porcentagem)) +
-  geom_col()
-  
-plot2 <- 
-  plot2_base +
-  scale_y_continuous(labels = scales::percent) +
-  labs(title = "Distribuição dos pinguins por ilha",
-       x = "Ilha",
-       y = "Porcentagem")
-plot21 <- 
-  plot2_base +
-  labs(title = "Distribuição dos pinguins por ilha",
+  geom_col() +
+  labs(title = "Distribuicao dos pinguins por ilha",
        x = "Ilha",
        y = "Contagem")
-
-plot22 <- 
-  plot2_base +
-  scale_fill_manual(values = paleta_penguins) +
-  facet_wrap(~island) +
-  labs(title = "Distribuição dos pinguins por espécie por ilha",
-       x = "Espécie",
-       y = "Quantidade")
-
-# porcentagem de cada espécie por ilha
-plot3 <- 
-  por_especie_e_ilha %>% 
-  ggplot(aes(x = island, y = porcentagem, fill = species)) +
-  geom_col() +
-  scale_y_continuous(labels = scales::percent) +
-  labs(title = "Porcentagem de espécies por ilha",
-       x = "Ilha",
-       y = "Porcentagem") +
-  scale_fill_manual(values = paleta_penguins)
-
-# porcetagem em relação ao total de cada espécie de pinguim
-# com texto junto da barra
-plot1_novo <- plot1 + 
-  geom_text(aes(label = contagem) , size = 10, hjust = 1, vjust = 0.5) +
-  coord_flip() +
-  theme(axis.text.y = element_text(size = 18),
-        axis.text.x = element_text(size = 18)) +
-  theme_minimal()
-
-plot1_novo <- plot1 + 
-  geom_text(aes(label = contagem) , size = 10, hjust = 1, vjust = 0.5) +
-  coord_flip() +
-  theme_minimal()
+plot2
 
 # sem texto junto da barra
-plot11_novo <- plot1 +
+plot1_novo <- plot1 +
   coord_flip()
 
-# Distribuição do número de pinguins por ilha
-# com texto junto da barra
-plot2_novo <- plot2 + coord_flip() +
-  geom_text(aes(label = contagem) , size = 10, hjust = 1, vjust = 0.5) +
-  coord_flip()
 # sem texto junto da barra
-plot21_novo <- plot2 +
+plot2_novo <- plot2 +
   coord_flip()
 
 
@@ -186,16 +133,28 @@ populacao_ilhas <- c(df_ilhas$porcentagem[1], df_ilhas$porcentagem[2], df_ilhas$
 ```
 
 Gráficos de distribuição dos pinguins nas ilhas
+
 ```{r}
-plot11_novo/
-plot21_novo
+plot1_novo/
+plot2_novo
 ```
 Gráficos de pizza com a distribuição de espécie por ilha onde o raio da pizza representa a quantidade de pinguins naquela ilha
 
+Ilha Biscoe
+
 ```{r}
-# fazendo gráficos
 pie(df_island_species[df_island_species$island == "Biscoe",]$porcentagem, df_island_species[df_island_species$island == "Biscoe",]$species, radius = populacao_ilhas[ilhas %in% "Biscoe"], col = c("#FF8204", "#0E7076"))
+```
+
+Ilha Dream
+
+```{r}
 pie(df_island_species[df_island_species$island == "Dream",]$porcentagem, df_island_species[df_island_species$island == "Dream",]$species, radius = populacao_ilhas[ilhas %in% "Dream"], col = paleta_penguins)
+```
+
+Ilha Torgersen
+
+```{r}
 pie(df_island_species[df_island_species$island == "Torgersen",]$porcentagem, df_island_species[df_island_species$island == "Torgersen",]$species, radius = populacao_ilhas[ilhas %in% "Torgersen"], col = paleta_penguins)
 ```
 
