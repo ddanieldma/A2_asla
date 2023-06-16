@@ -1,5 +1,5 @@
 ---
-title: "A2_markdown"
+title: "Trabalho da A2 de Análise Exploratória de Dados e Visualização"
 author: "Daniel de Miranda Almeida((231708801) e Guilherme Carvalho Cunha (231708013)"
 date: "2023-06-16"
 output: html_document
@@ -19,8 +19,13 @@ library(socviz)
 library(ggthemes)
 ```
 
+```{r echo = FALSE}
+# lendo database
+pg_size <-  read.csv("E:/Users/B51995/Desktop/A2_Asla/penguins_size.csv")
 
-## A2 - AEDV
+paleta_penguins = c("#FF8204", "#C55BCA", "#0E7076")
+paleta_penguins_dois = c("adelie", "chinstrap", "gentoo")
+```
 
 ### Formulação e documentação da ideia
 
@@ -29,7 +34,7 @@ library(ggthemes)
  Para a escolha da base de dados, nosso objetivo era encontrar alguma que não fosse muito comum e que estimulasse a curiosidade do público. Sendo assim, foi escolhido um dataset que mostra a distribuição das espécies de pinguim em três ilhas do Arquipélago Palmer: Dream, Biscoe e Torgersen, situadas na Antártica. Dentre as varíáveis disponíveis, tínhamos a espécie do pinguim, a ilha em que foi catalogado, seu peso, sexo, comprimento da nadadeira e comprimento e largura do bico.
  
 ```{r echo=FALSE}
-knitr::include_graphics("E:/Users/B51995/Desktop/imgs/bico_pinguim.jfif")
+knitr::include_graphics("E:/Users/B51995/Desktop/A2_Asla/imgs/bico_pinguim.jfif")
 ```
  
 #### Hipótese 
@@ -41,17 +46,159 @@ knitr::include_graphics("E:/Users/B51995/Desktop/imgs/bico_pinguim.jfif")
  Partindo para as ideias iniciais da visualização, decidimos que a visualização seria um mapa, que conteria as três ilhas, e cada espécie de pinguim seria representada por uma cor, facilitando a compreensão dos gráficos. Baseado na seguinte imagem:
  
 ```{r echo=FALSE}
-knitr::include_graphics("E:/Users/B51995/Desktop/imgs/cores_pinguins.jfif")
+knitr::include_graphics("E:/Users/B51995/Desktop/A2_Asla/imgs/cores_pinguins.jfif")
 ```
 
-O "mapa" do arquipélago foi feito no photoshop, com ilhas representativas que não são as reais retiradas do google maps, pois não conseguimos encontrar as a representação das ilhas certas.
+O "mapa" do arquipélago foi feito no photoshop, com ilhas representativas que não são as reais retiradas do google maps, pois não conseguimos encontrar as a representação das ilhas certas. O espaço vago na direita da imagem foi deixado livre para que colocassemos os gráficos futuramente.
 
 ```{r echo=FALSE}
-knitr::include_graphics("E:/Users/B51995/Desktop/imgs/rascunho_pinguins.jpg")
+knitr::include_graphics("E:/Users/B51995/Desktop/A2_Asla/imgs/rascunho_pinguins.jpg")
 ```
 
 ### Análise Exploratória da base de dados
- 
+
+Pegando alguns exemplos do dataset
+```{r}
+sample_n(pg_size, 10)
+```
+
+Médias e desvios padrões para as variáveis que são numéricas
+```{r}
+pg_size_copia = pg_size
+
+pg_size_copia %>% summarize_if(is.numeric, list(mean = mean, sd = sd), na.rm = TRUE)
+```
+
+#### Gráficos sobre a distribuição dos pinguins nas ilhas
+```{r gráficos "finais"}
+# preparando gráficos
+# agrupando dados
+por_ilha <- pg_size %>% group_by(island) %>% 
+  summarize(contagem = n()) %>% 
+  mutate(porcentagem = contagem / sum(contagem))
+por_especie <- pg_size %>% group_by(species) %>% 
+  summarize(contagem = n()) %>% 
+  mutate(porcentagem = contagem / sum(contagem))
+por_especie_e_ilha <- pg_size %>% group_by(island, species) %>%
+  summarize(contagem = n()) %>%
+  mutate(porcentagem = contagem / sum(contagem))
+
+plot1_base <- 
+  ggplot(por_especie, aes(x = species, y = porcentagem, fill = species)) +
+  geom_col()
+  
+plot1 <- plot1_base +
+  scale_fill_manual(values = paleta_penguins) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Porcentagem de pinguins por espécie",
+       x = "Espécie",
+       y = "Porcentagem")
+
+plot11 <- 
+  plot1_base +
+  scale_fill_manual(values = paleta_penguins) +
+  labs(title = "Porcentagem de pinguins por espécie",
+       x = "Espécie",
+       y = "Contagem")
+
+# porcetagem  dos pinguins por ilha
+plot2_base <- 
+  por_ilha %>% 
+  ggplot(aes(x = island, y = porcentagem)) +
+  geom_col()
+  
+plot2 <- 
+  plot2_base +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Distribuição dos pinguins por ilha",
+       x = "Ilha",
+       y = "Porcentagem")
+plot21 <- 
+  plot2_base +
+  labs(title = "Distribuição dos pinguins por ilha",
+       x = "Ilha",
+       y = "Contagem")
+
+plot22 <- 
+  plot2_base +
+  scale_fill_manual(values = paleta_penguins) +
+  facet_wrap(~island) +
+  labs(title = "Distribuição dos pinguins por espécie por ilha",
+       x = "Espécie",
+       y = "Quantidade")
+
+# porcentagem de cada espécie por ilha
+plot3 <- 
+  por_especie_e_ilha %>% 
+  ggplot(aes(x = island, y = porcentagem, fill = species)) +
+  geom_col() +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title = "Porcentagem de espécies por ilha",
+       x = "Ilha",
+       y = "Porcentagem") +
+  scale_fill_manual(values = paleta_penguins)
+
+# porcetagem em relação ao total de cada espécie de pinguim
+# com texto junto da barra
+plot1_novo <- plot1 + 
+  geom_text(aes(label = contagem) , size = 10, hjust = 1, vjust = 0.5) +
+  coord_flip() +
+  theme(axis.text.y = element_text(size = 18),
+        axis.text.x = element_text(size = 18)) +
+  theme_minimal()
+
+plot1_novo <- plot1 + 
+  geom_text(aes(label = contagem) , size = 10, hjust = 1, vjust = 0.5) +
+  coord_flip() +
+  theme_minimal()
+
+# sem texto junto da barra
+plot11_novo <- plot1 +
+  coord_flip()
+
+# Distribuição do número de pinguins por ilha
+# com texto junto da barra
+plot2_novo <- plot2 + coord_flip() +
+  geom_text(aes(label = contagem) , size = 10, hjust = 1, vjust = 0.5) +
+  coord_flip()
+# sem texto junto da barra
+plot21_novo <- plot2 +
+  coord_flip()
+
+
+# porcetagem de pinguins por ilha em gráfico pizza
+# com raio da pizza sendo a quantidade de pinguins na ilha em proporção
+
+#preparando dados para o gráfico
+# agrupando por ilha e por espécie
+df_island_species <- pg_size %>% group_by(island, species) %>%
+  summarize(contagem = n()) %>%
+  mutate(porcentagem = contagem / sum(contagem))
+
+# agrupando apenas por ilhas para ter a população de cada espécie em cada ilha
+df_ilhas <- pg_size %>% group_by(island) %>% 
+  summarize(contagem = n()) %>% 
+  mutate(porcentagem = contagem / sum(contagem))
+
+# juntando a população de cada ilha em um array
+ilhas <- c(df_ilhas$island[1], df_ilhas$island[2], df_ilhas$island[3])
+populacao_ilhas <- c(df_ilhas$porcentagem[1], df_ilhas$porcentagem[2], df_ilhas$porcentagem[3])
+```
+
+Gráficos de distribuição dos pinguins nas ilhas
+```{r}
+plot11_novo/
+plot21_novo
+```
+Gráficos de pizza com a distribuição de espécie por ilha onde o raio da pizza representa a quantidade de pinguins naquela ilha
+
+```{r}
+# fazendo gráficos
+pie(df_island_species[df_island_species$island == "Biscoe",]$porcentagem, df_island_species[df_island_species$island == "Biscoe",]$species, radius = populacao_ilhas[ilhas %in% "Biscoe"], col = c("#FF8204", "#0E7076"))
+pie(df_island_species[df_island_species$island == "Dream",]$porcentagem, df_island_species[df_island_species$island == "Dream",]$species, radius = populacao_ilhas[ilhas %in% "Dream"], col = paleta_penguins)
+pie(df_island_species[df_island_species$island == "Torgersen",]$porcentagem, df_island_species[df_island_species$island == "Torgersen",]$species, radius = populacao_ilhas[ilhas %in% "Torgersen"], col = paleta_penguins)
+```
+
 ### Pensamento editorial
 
 #### Definição do público alvo
@@ -71,4 +218,10 @@ knitr::include_graphics("E:/Users/B51995/Desktop/imgs/rascunho_pinguins.jpg")
  As ferramentas utilizadas foram o photoshop. para elaboração do fundo da peça gráfica; o r e suas diversas bibliotecas, para a criação dos gráficos; e o canva para a montagem da versão final da peça gráfica.
  
 ### Produção da peça gráfica
+
+Na produção da peça gráfica usamos a ferramenta canva para adicionar os gráficos e algumas imagens ilustrativas de pinguins sobre o fundo mostrado anteriormente. Os gráficos de pizza foram posicionados sobre suas respectivas ilhas e os gráficos de violino foram colocados no espaço reservado para eles na direita.
  
+#### Peça gráfica final
+```{r echo=FALSE}
+knitr::include_graphics("E:/Users/B51995/Desktop/A2_Asla/imgs/peca_grafica.png")
+```
